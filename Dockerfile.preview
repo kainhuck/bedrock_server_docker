@@ -3,7 +3,7 @@ RUN apt-get -y update && apt-get install -y wget unzip
 
 WORKDIR /mc
 
-RUN wget https://minecraft.azureedge.net/bin-linux/bedrock-server-1.19.51.01.zip -O bedrock-server.zip 
+RUN wget https://minecraft.azureedge.net/bin-linux-preview/bedrock-server-1.19.70.20.zip -O bedrock-server.zip 
 
 RUN unzip bedrock-server.zip && rm bedrock-server.zip
 
