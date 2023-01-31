@@ -1,5 +1,5 @@
 FROM ubuntu
-RUN apt-get -y update && apt-get install -y wget unzip
+RUN apt-get -y update && apt-get install -y wget unzip curl
 
 WORKDIR /mc
 
