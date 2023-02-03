@@ -68,7 +68,7 @@ func main() {
 		log.Fatal(err)
 	}
 	image := fmt.Sprintf("kainhuck/bedrock:%s", version)
-	// RunCmd(fmt.Sprintf("docker build -t %s -f %s %s", image, filepath.Join(WorkDir, "Dockerfile"), WorkDir))
+	RunCmd(fmt.Sprintf("docker build -t %s -f %s %s", image, filepath.Join(WorkDir, "Dockerfile"), WorkDir))
 	// 	1.3 删除工作目录
 
 	// 2. 创建安装目录
@@ -79,17 +79,6 @@ func main() {
 	if err := TemplateBedrock(installDir, image); err != nil {
 		log.Fatal(err)
 	}
-	//	2.2 启动服务
-
-	// link, err := GetBedrockDownloadLink(BedrockLinkSelector)
-	// if err != nil {
-	// 	log.Fatalf("get link failed: %v", err)
-	// }
-
-	// if err := TemplateDockerfile(link); err != nil {
-	// 	log.Fatalf("get dockerfile failed: %v", err)
-	// }
-	// log.Println("SUCCESS")
 }
 
 func TemplateDockerfile(link string) error {
@@ -165,4 +154,23 @@ func CheckEnv() {
 	if _, err := exec.LookPath("docker-compose"); err != nil {
 		log.Fatal("docker-compose not install")
 	}
+}
+
+func Hello(image string, installDir string, version string) {
+	fmt.Println("恭喜，服务部署成功！")
+	fmt.Printf("镜像名称: %s\n", image)
+	fmt.Printf("安装路径: %s\n", installDir)
+	fmt.Printf("版本: %s\n", version)
+	fmt.Printf("世界名称: %s\n", WorldName)
+	fmt.Printf("世界模式: %s\n", Mode)
+	fmt.Printf("世界难度: %s\n", Difficulty)
+	if len(Xuid) > 0 {
+		fmt.Printf("世界管理员: %s\n", Xuid)
+	}
+	if len(WorldSeed) > 0 {
+		fmt.Printf("世界种子: %s\n", WorldSeed)
+	}
+	fmt.Println("=============================")
+	fmt.Printf("启动服务: docker-compose -f %s up -d", filepath.Join(installDir, "docker-compose.yml"))
+	fmt.Printf("服务暂停: docker-compose -f %s stop", filepath.Join(installDir, "docker-compose.yml"))
 }
