@@ -68,7 +68,9 @@ func main() {
 		log.Fatal(err)
 	}
 	image := fmt.Sprintf("kainhuck/bedrock:%s", version)
-	RunCmd(fmt.Sprintf("docker build -t %s -f %s %s", image, filepath.Join(WorkDir, "Dockerfile"), WorkDir))
+	if err := RunCmd(fmt.Sprintf("docker build -t %s -f %s %s", image, filepath.Join(WorkDir, "Dockerfile"), WorkDir)); err != nil {
+		log.Fatal(err)
+	}
 	// 	1.3 删除工作目录
 
 	// 2. 创建安装目录
@@ -176,4 +178,11 @@ func Hello(image string, installDir string, version string) {
 	fmt.Println("=============================")
 	fmt.Printf("启动服务: docker-compose -f %s up -d\n", filepath.Join(installDir, "docker-compose.yml"))
 	fmt.Printf("服务暂停: docker-compose -f %s stop\n", filepath.Join(installDir, "docker-compose.yml"))
+	fmt.Printf("服务删除: docker-compose -f %s rm\n", filepath.Join(installDir, "docker-compose.yml"))
+	fmt.Printf("服务状态: docker-compose -f %s ps\n", filepath.Join(installDir, "docker-compose.yml"))
+	fmt.Println("=============================")
+	fmt.Printf("卸载服务:\n")
+	fmt.Printf("1. 请确保服务容器已经被删除\n")
+	fmt.Printf("2. rm -rf %s", installDir)
+	fmt.Printf("3. docker image rm %s", image)
 }

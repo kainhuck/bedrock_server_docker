@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -31,13 +32,16 @@ func NewPath(path string) error {
 }
 
 func RunCmd(cmd string) error {
-	log.Println(cmd)
+	var outerr bytes.Buffer
 	c := exec.Command("/bin/sh", "-c", cmd)
 	c.Stdin = os.Stdin
 	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
+	c.Stderr = &outerr
 
-	return c.Run()
+	if c.Run() != nil {
+		return fmt.Errorf(outerr.String())
+	}
+	return nil
 }
 
 func getVersion(link string) (string, error) {
