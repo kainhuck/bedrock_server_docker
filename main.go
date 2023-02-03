@@ -79,6 +79,8 @@ func main() {
 	if err := TemplateBedrock(installDir, image); err != nil {
 		log.Fatal(err)
 	}
+
+	Hello(image, installDir, version)
 }
 
 func TemplateDockerfile(link string) error {
@@ -104,7 +106,7 @@ func TemplateBedrock(installDir string, image string) error {
 			return err
 		}
 
-		f, err := os.OpenFile(filepath.Join(installDir, filename), os.O_CREATE|os.O_WRONLY, 0755)
+		f, err := os.OpenFile(filepath.Join(installDir, filename), os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return err
 		}
