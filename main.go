@@ -25,11 +25,21 @@ var (
 	WorkDir        = path.Join(os.TempDir(), "minecraft_kainhuck")
 	Version        = ""
 	DownloadLink   = "https://minecraft.azureedge.net/bin-linux/bedrock-server-%s.zip"
+	Xuid           = ""
+	Mode           = "survival"
+	Difficulty     = "hard"
+	WorldName      = "new_world"
+	WorldSeed      = ""
 )
 
 func init() {
 	flag.StringVar(&InstallRootDir, "i", InstallRootDir, "-i <安装目录>")
 	flag.StringVar(&Version, "v", "", "-v <安装版本>")
+	flag.StringVar(&Xuid, "x", "", "-x <xuid>")
+	flag.StringVar(&Mode, "m", Mode, "-m <模式 survival creative adventure>")
+	flag.StringVar(&Difficulty, "d", Difficulty, "-d <难度 peaceful, easy, normal, hard>")
+	flag.StringVar(&WorldName, "n", WorldName, "-n <世界名称>")
+	flag.StringVar(&WorldSeed, "s", WorldSeed, "-s <种子>")
 	flag.Parse()
 }
 
@@ -58,7 +68,7 @@ func main() {
 		log.Fatal(err)
 	}
 	image := fmt.Sprintf("kainhuck/bedrock:%s", version)
-	RunCmd(fmt.Sprintf("docker build -t %s -f %s %s", image, filepath.Join(WorkDir, "Dockerfile"), WorkDir))
+	// RunCmd(fmt.Sprintf("docker build -t %s -f %s %s", image, filepath.Join(WorkDir, "Dockerfile"), WorkDir))
 	// 	1.3 删除工作目录
 
 	// 2. 创建安装目录
@@ -99,21 +109,38 @@ func TemplateDockerfile(link string) error {
 
 func TemplateBedrock(installDir string, image string) error {
 
-	dockerCompose := DockerCompose{
+	temp := func(filename string, tpl string, field interface{}) error {
+		t, err := template.New(filename).Parse(tpl)
+		if err != nil {
+			return err
+		}
+
+		f, err := os.OpenFile(filepath.Join(installDir, filename), os.O_CREATE|os.O_WRONLY, 0755)
+		if err != nil {
+			return err
+		}
+		return t.Execute(f, field)
+	}
+
+	if err := temp("docker-compose.yml", DockercomposeTemp, DockerCompose{
 		Image:      image,
 		InstallDir: installDir,
-	}
-
-	dockercomposeTemp, err := template.New("docker-compose").Parse(DockercomposeTemp)
-	if err != nil {
+	}); err != nil {
 		return err
 	}
 
-	f, err := os.OpenFile(filepath.Join(installDir, "docker-compose.yml"), os.O_CREATE|os.O_WRONLY, 0755)
-	if err != nil {
+	if err := temp("permissions.json", PermissionsJsonTemp, PermissionsJson{
+		XUID: Xuid,
+	}); err != nil {
 		return err
 	}
-	if err := dockercomposeTemp.Execute(f, dockerCompose); err != nil {
+
+	if err := temp("server.properties", ServerPropertiesTemp, ServerProperties{
+		Mode:       Mode,
+		Difficulty: Difficulty,
+		WorldName:  WorldName,
+		WorldSeed:  WorldSeed,
+	}); err != nil {
 		return err
 	}
 

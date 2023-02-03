@@ -1,11 +1,26 @@
 package main
 
+import (
+	_ "embed"
+)
+
 type DockerCompose struct {
 	Image      string
 	InstallDir string
 }
 
-const (
+type PermissionsJson struct {
+	XUID string
+}
+
+type ServerProperties struct {
+	Mode       string // "survival", "creative", or "adventure"
+	Difficulty string // "peaceful", "easy", "normal", or "hard"
+	WorldName  string
+	WorldSeed  string
+}
+
+var (
 	DockerfileTemp = `FROM ubuntu
 RUN apt-get -y update && apt-get install -y wget unzip curl
 
@@ -35,10 +50,10 @@ services:
 	PermissionsJsonTemp = `[
 	{
 		"permission": "operator",
-		"xuid": "xxxxxx"
+		"xuid": "{{.XUID}}"
 	}
 ]
 `
-
-	ServerPropertiesTemp = ``
+	//go:embed server.properties
+	ServerPropertiesTemp string
 )
