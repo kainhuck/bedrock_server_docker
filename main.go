@@ -58,7 +58,7 @@ func main() {
 		log.Fatal(err)
 	}
 	image := fmt.Sprintf("kainhuck/bedrock:%s", version)
-	runCmd(fmt.Sprintf("docker build -t %s -f %s %s", image, filepath.Join(WorkDir, "Dockerfile"), WorkDir))
+	RunCmd(fmt.Sprintf("docker build -t %s -f %s %s", image, filepath.Join(WorkDir, "Dockerfile"), WorkDir))
 	// 	1.3 删除工作目录
 
 	// 2. 创建安装目录

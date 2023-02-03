@@ -30,7 +30,7 @@ func NewPath(path string) error {
 	return os.MkdirAll(path, 0755)
 }
 
-func runCmd(cmd string) error {
+func RunCmd(cmd string) error {
 	log.Println(cmd)
 	c := exec.Command("/bin/sh", "-c", cmd)
 	c.Stdin = os.Stdin
