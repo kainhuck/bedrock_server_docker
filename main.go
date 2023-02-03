@@ -159,6 +159,7 @@ func CheckEnv() {
 }
 
 func Hello(image string, installDir string, version string) {
+	fmt.Println("=============================")
 	fmt.Println("恭喜，服务部署成功！")
 	fmt.Printf("镜像名称: %s\n", image)
 	fmt.Printf("安装路径: %s\n", installDir)
