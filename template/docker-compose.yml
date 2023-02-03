@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  registry:
+    image: {{.Image}}
+    container_name: bedrock_server
+    volumes:
+      - {{.InstallDir}}/worlds:/mc/worlds
+      - {{.InstallDir}}/server.properties:/mc/server.properties
+      - {{.InstallDir}}/permissions.json:/mc/permissions.json
+    ports:
+      - 19132:19132/udp
+    restart: always

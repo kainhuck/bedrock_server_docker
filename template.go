@@ -21,39 +21,15 @@ type ServerProperties struct {
 }
 
 var (
-	DockerfileTemp = `FROM ubuntu
-RUN apt-get -y update && apt-get install -y wget unzip curl
+	//go:embed template/Dockerfile
+	DockerfileTemp string
 
-WORKDIR /mc
+	//go:embed template/docker-compose.yml
+	DockercomposeTemp string
 
-RUN wget {{.}} -O bedrock-server.zip 
+	//go:embed template/permissions.json
+	PermissionsJsonTemp string
 
-RUN unzip bedrock-server.zip && rm bedrock-server.zip
-
-ENV LD_LIBRARY_PATH=/mc
-
-CMD ["./bedrock_server"]`
-
-	DockercomposeTemp = `version: "3.7"
-services:
-  registry:
-    image: {{.Image}}
-    container_name: bedrock_server
-    volumes:
-      - {{.InstallDir}}/worlds:/mc/worlds
-      - {{.InstallDir}}/server.properties:/mc/server.properties
-      - {{.InstallDir}}/permissions.json:/mc/permissions.json
-    ports:
-      - 19132:19132/udp
-    restart: always`
-
-	PermissionsJsonTemp = `[
-	{
-		"permission": "operator",
-		"xuid": "{{.XUID}}"
-	}
-]
-`
-	//go:embed server.properties
+	//go:embed template/server.properties
 	ServerPropertiesTemp string
 )
