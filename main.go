@@ -173,6 +173,6 @@ func Hello(image string, installDir string, version string) {
 		fmt.Printf("世界种子: %s\n", WorldSeed)
 	}
 	fmt.Println("=============================")
-	fmt.Printf("启动服务: docker-compose -f %s up -d", filepath.Join(installDir, "docker-compose.yml"))
-	fmt.Printf("服务暂停: docker-compose -f %s stop", filepath.Join(installDir, "docker-compose.yml"))
+	fmt.Printf("启动服务: docker-compose -f %s up -d\n", filepath.Join(installDir, "docker-compose.yml"))
+	fmt.Printf("服务暂停: docker-compose -f %s stop\n", filepath.Join(installDir, "docker-compose.yml"))
 }
