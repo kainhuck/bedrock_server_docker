@@ -1,11 +1,11 @@
 # docker image for bedrock_server
 
-自动部署我的世界基岩版，利用docker-compose管理
+自动部署我的世界基岩版，利用docker-compose管理，简单方便
 
 ## Usage
 
 ```bash
-Usage of ./bsd:
+Usage of bsd:
   -d string
         -d <难度 peaceful, easy, normal, hard> (default "hard")
   -i string
@@ -15,14 +15,15 @@ Usage of ./bsd:
   -n string
         -n <世界名称> (default "new_world")
   -s string
-        -s <种子> (可不填)
+        -s <种子>
+  -u    更新 -v 指定的版本
   -v string
-        -v <安装版本> (不指定则去官网拉取最新版本)
+        -v <安装版本>
   -x string
-        -x <xuid> (管理员id,可不填,后续可编辑)
+        -x <xuid>
 ```
 
-## tree
+## 工作目录结构
 ```perl
 minecraft_kainchuk
 ├── docker-compose.yml // docker-compose
