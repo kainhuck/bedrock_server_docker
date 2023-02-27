@@ -95,7 +95,7 @@ func main() {
 		}
 
 		re := regexp.MustCompile(`image: kainhuck/bedrock:([0-9\.]*)\n`)
-		newBts := re.ReplaceAll(bts, []byte(version))
+		newBts := re.ReplaceAll(bts, []byte(fmt.Sprintf("image: kainhuck/bedrock:%s\n", version)))
 
 		f, err := os.OpenFile(composePath, os.O_WRONLY, 0644)
 		if err != nil {
