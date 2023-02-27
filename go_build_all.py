@@ -4,17 +4,12 @@ import sys
 
 os_arch = {
     "darwin": [
-        "amd64",
-        "arm64"
+        "amd64"
     ],
     "linux": [
-        "386",
-        "amd64",
-        "arm",
-        "arm64",
+        "amd64"
     ],
     "windows": [
-        "386",
         "amd64"
     ]
 }
