@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -8,7 +9,9 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"strings"
 	"text/template"
+	"time"
 
 	"github.com/gocolly/colly"
 )
@@ -75,6 +78,36 @@ func main() {
 
 	// 2. 创建安装目录
 	installDir := filepath.Join(InstallRootDir, "minecraft_kainchuk")
+
+	if exist, _ := ExistPath(installDir); exist {
+		fmt.Printf("安装目录(%s)已存在，继续安装将完全删除该目录!!!\n", installDir)
+		var yn string
+		var ch = make(chan struct{})
+
+		fmt.Printf("是否继续安装 y/n[n]: ")
+		fmt.Scanf("%s", &yn)
+
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			select {
+			case <-ctx.Done():
+				fmt.Println("安装停止")
+				os.Exit(0)
+			case <-ch:
+				return
+			}
+		}()
+
+		ch <- struct{}{}
+
+		if strings.ToLower(yn) != "y" {
+			fmt.Println("安装停止")
+			os.Exit(0)
+		}
+	}
+
 	NewDir(installDir)
 	// 	2.1 生成各种配置文件
 	NewDir(filepath.Join(installDir, "worlds"))
