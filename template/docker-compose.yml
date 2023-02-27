@@ -1,6 +1,6 @@
 version: "3.7"
 services:
-  registry:
+  minecraft:
     image: {{.Image}}
     container_name: bedrock_server
     volumes:

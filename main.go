@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"text/template"
 	"time"
@@ -33,6 +34,7 @@ var (
 	Difficulty     = "hard"
 	WorldName      = "new_world"
 	WorldSeed      = ""
+	Update         = false
 )
 
 func init() {
@@ -43,6 +45,7 @@ func init() {
 	flag.StringVar(&Difficulty, "d", Difficulty, "-d <难度 peaceful, easy, normal, hard>")
 	flag.StringVar(&WorldName, "n", WorldName, "-n <世界名称>")
 	flag.StringVar(&WorldSeed, "s", WorldSeed, "-s <种子>")
+	flag.BoolVar(&Update, "u", Update, "更新 -v 指定的版本")
 	flag.Parse()
 }
 
@@ -79,40 +82,66 @@ func main() {
 	// 2. 创建安装目录
 	installDir := filepath.Join(InstallRootDir, "minecraft_kainchuk")
 
-	if exist, _ := ExistPath(installDir); exist {
-		fmt.Printf("安装目录(%s)已存在，继续安装将完全删除该目录!!!\n", installDir)
-		var yn string
-		var ch = make(chan struct{})
+	if Update {
+		composePath := filepath.Join(installDir, "docker-compose.yml")
+		if exist, _ := ExistPath(composePath); !exist {
+			fmt.Printf("更新失败 %s 不存在\n", composePath)
+			os.Exit(-1)
+		}
+		// 替换 docker-compose.yml 内的镜像版本
+		bts, err := os.ReadFile(composePath)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-		fmt.Printf("是否继续安装 y/n[n]: ")
-		fmt.Scanf("%s", &yn)
+		re := regexp.MustCompile(`image: kainhuck/bedrock:([0-9\.]*)\n`)
+		newBts := re.ReplaceAll(bts, []byte(version))
 
-		go func() {
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-			defer cancel()
+		f, err := os.OpenFile(composePath, os.O_WRONLY, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
 
-			select {
-			case <-ctx.Done():
+		_, err = f.Write(newBts)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if exist, _ := ExistPath(installDir); exist {
+			fmt.Printf("安装目录(%s)已存在，继续安装将完全删除该目录!!!\n", installDir)
+			var yn string
+			var ch = make(chan struct{})
+
+			fmt.Printf("是否继续安装 y/n[n]: ")
+			fmt.Scanf("%s", &yn)
+
+			go func() {
+				ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+				defer cancel()
+
+				select {
+				case <-ctx.Done():
+					fmt.Println("安装停止")
+					os.Exit(0)
+				case <-ch:
+					return
+				}
+			}()
+
+			ch <- struct{}{}
+
+			if strings.ToLower(yn) != "y" {
 				fmt.Println("安装停止")
 				os.Exit(0)
-			case <-ch:
-				return
 			}
-		}()
-
-		ch <- struct{}{}
-
-		if strings.ToLower(yn) != "y" {
-			fmt.Println("安装停止")
-			os.Exit(0)
 		}
-	}
-
-	NewDir(installDir)
-	// 	2.1 生成各种配置文件
-	NewDir(filepath.Join(installDir, "worlds"))
-	if err := TemplateBedrock(installDir, image); err != nil {
-		log.Fatal(err)
+		NewDir(installDir)
+		// 	2.1 生成各种配置文件
+		NewDir(filepath.Join(installDir, "worlds"))
+		if err := TemplateBedrock(installDir, image); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	Hello(image, installDir, version)
@@ -195,18 +224,22 @@ func CheckEnv() {
 
 func Hello(image string, installDir string, version string) {
 	fmt.Println("=============================")
-	fmt.Println("恭喜，服务部署成功！")
-	fmt.Printf("镜像名称: %s\n", image)
-	fmt.Printf("安装路径: %s\n", installDir)
-	fmt.Printf("版本: %s\n", version)
-	fmt.Printf("世界名称: %s\n", WorldName)
-	fmt.Printf("世界模式: %s\n", Mode)
-	fmt.Printf("世界难度: %s\n", Difficulty)
-	if len(Xuid) > 0 {
-		fmt.Printf("世界管理员: %s\n", Xuid)
-	}
-	if len(WorldSeed) > 0 {
-		fmt.Printf("世界种子: %s\n", WorldSeed)
+	if Update{
+		fmt.Printf("恭喜，服务更新成功！当前版本: %s\n", version)
+	}else{
+		fmt.Println("恭喜，服务部署成功！")
+		fmt.Printf("镜像名称: %s\n", image)
+		fmt.Printf("安装路径: %s\n", installDir)
+		fmt.Printf("版本: %s\n", version)
+		fmt.Printf("世界名称: %s\n", WorldName)
+		fmt.Printf("世界模式: %s\n", Mode)
+		fmt.Printf("世界难度: %s\n", Difficulty)
+		if len(Xuid) > 0 {
+			fmt.Printf("世界管理员: %s\n", Xuid)
+		}
+		if len(WorldSeed) > 0 {
+			fmt.Printf("世界种子: %s\n", WorldSeed)
+		}
 	}
 	fmt.Println("=============================")
 	fmt.Printf("运维指南:\n")
